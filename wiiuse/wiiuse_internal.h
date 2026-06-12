@@ -267,7 +267,7 @@ struct op_t
 } __attribute__((packed));
 
 /* not part of the api */
-void wiiuse_init_cmd_queue(struct wiimote_t *wm);
+int wiiuse_init_cmd_queue(struct wiimote_t *wm);
 void wiiuse_send_next_command(struct wiimote_t *wm);
 int wiiuse_set_report_type(struct wiimote_t* wm,cmd_blk_cb cb);
 int wiiuse_sendcmd(struct wiimote_t *wm,ubyte report_type,ubyte *msg,int len,cmd_blk_cb cb);

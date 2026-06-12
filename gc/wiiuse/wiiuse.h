@@ -625,6 +625,7 @@ typedef struct wiimote_t {
 		WCONST ubyte exp_timeout;			/**< timeout for expansion handshake		*/
 	#elif defined(GEKKO)
 		WCONST lwp_queue cmdq;
+		WCONST u8 *queue_buffer;
 		WCONST struct bd_addr bdaddr;		/**< bt address								*/
 		WCONST char bdaddr_str[18];			/**< readable bt address					*/
 		WCONST struct bte_pcb *sock;	/**< output socket							*/

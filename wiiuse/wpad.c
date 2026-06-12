@@ -1774,6 +1774,7 @@ s32 WPAD_Shutdown(void)
 	__wpads_used = 0;
 
 	__wiiuse_sensorbar_enable(0);
+	wiiuse_cleanup(__wpads, WPAD_MAX_DEVICES);
 	_CPU_ISR_Restore(level);
 
 	BTE_Shutdown();

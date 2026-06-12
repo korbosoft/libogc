@@ -54,6 +54,32 @@ static __inline__ void __wiiuse_push_command(struct wiimote_t *wm,struct cmd_blk
 	_CPU_ISR_Restore(level);
 }
 
+void wiiuse_cleanup(struct wiimote_t **wm, int wiimotes)
+{
+	int i = 0;
+
+	if (!wm)
+		return;
+	
+	for (; i < wiimotes; ++i) {
+		if (wm[i]) {
+			if (wm[i]->queue_buffer) {
+				free(wm[i]->queue_buffer);
+				wm[i]->queue_buffer = NULL;
+			}
+
+			if (wm[i]->sock) {
+				bte_free(wm[i]->sock);
+				wm[i]->sock = NULL;
+			}
+
+			free(wm[i]);
+		}
+	}
+
+	free(wm);
+}
+
 #ifndef GEKKO
 struct wiimote_t** wiiuse_init(int wiimotes) {
 #else
@@ -66,14 +92,14 @@ struct wiimote_t** wiiuse_init(int wiimotes, wii_event_cb event_cb) {
 		return NULL;
 
 	if (!__wm) {
-		__wm = __lwp_wkspace_allocate(sizeof(struct wiimote_t*) * wiimotes);
+		__wm = malloc(sizeof(struct wiimote_t*) * wiimotes);
 		if(!__wm) return NULL;
 		memset(__wm, 0, sizeof(struct wiimote_t*) * wiimotes);
 	}
 
 	for (i = 0; i < wiimotes; ++i) {
 		if(!__wm[i])
-			__wm[i] = __lwp_wkspace_allocate(sizeof(struct wiimote_t));
+			__wm[i] = malloc(sizeof(struct wiimote_t));
 
 		memset(__wm[i], 0, sizeof(struct wiimote_t));
 		__wm[i]->unid = i;
@@ -88,7 +114,10 @@ struct wiimote_t** wiiuse_init(int wiimotes, wii_event_cb event_cb) {
 			__wm[i]->sock = NULL;
 			__wm[i]->bdaddr = *BD_ADDR_ANY;
 			__wm[i]->event_cb = event_cb;
-			wiiuse_init_cmd_queue(__wm[i]);
+			if (wiiuse_init_cmd_queue(__wm[i])) {
+				WIIUSE_ERROR("Could not allocate command queue");
+				return NULL;
+			}
 		#elif defined(unix)
 			__wm[i]->bdaddr = *BDADDR_ANY;
 			__wm[i]->out_sock = -1;
