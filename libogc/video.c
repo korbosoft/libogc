@@ -2869,7 +2869,7 @@ GXRModeObj *rmode = NULL;
 	}
 #else
 	u32 tvmode = VIDEO_GetCurrentTvMode();
-	if (VIDEO_HaveComponentCable()) {
+	if (SYS_GetProgressiveScan() && VIDEO_HaveComponentCable()) {
 		switch (tvmode) {
 			case VI_NTSC:
 				rmode = &TVNtsc480Prog;
